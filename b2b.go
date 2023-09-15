@@ -32,13 +32,13 @@ func NewB2b(b2bModel B2bModel) B2bHandler {
 
 func (b b2bConfigContext) Hit() (*party.Response, *error) {
 
-	rsaPrivateKey, err := DecodePrivateKey(b.b2bModel.PrivateKey)
+	rsaPrivateKey, err := decodePrivateKey(b.b2bModel.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
 
 	timestamp := time.Now().Format(time.RFC3339)
-	signatureToken, err := CreateSignatureToken(b.b2bModel.ClientKey, timestamp, *rsaPrivateKey)
+	signatureToken, err := createSignatureToken(b.b2bModel.ClientKey, timestamp, *rsaPrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -49,23 +49,23 @@ func (b b2bConfigContext) Hit() (*party.Response, *error) {
 		return nil, err
 	}
 
-	token, err := GetToken(responseToken.ResponseBody)
+	token, err := getToken(responseToken.ResponseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	relativePath, err := GetRelativePath(b.b2bModel.UrlApi)
+	relativePath, err := getRelativePath(b.b2bModel.UrlApi)
 	if err != nil {
 		return nil, err
 	}
 
-	minify, err := MinifyPayload(b.b2bModel.RequestBody)
+	minify, err := minifyPayload(b.b2bModel.RequestBody)
 	if err != nil {
 		return nil, err
 	}
 
-	encodeRequestBody := CreateHash256(*minify, b.b2bModel.HttpMethod)
-	signaturePayload := CreateSignaturePayload(b.b2bModel.ClientSecret, b.b2bModel.HttpMethod,
+	encodeRequestBody := createHash256(*minify, b.b2bModel.HttpMethod)
+	signaturePayload := createSignaturePayload(b.b2bModel.ClientSecret, b.b2bModel.HttpMethod,
 		*relativePath, *token, encodeRequestBody, timestamp)
 
 	responseEndpoint, err := client.HitEndpoint(*token, timestamp, signaturePayload)

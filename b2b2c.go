@@ -34,13 +34,13 @@ func NewB2b2c(b2b2cModel B2b2cModel) B2bHandler {
 
 func (b b2b2cConfigContext) Hit() (*party.Response, *error) {
 
-	rsaPrivateKey, err := DecodePrivateKey(b.b2b2cModel.PrivateKey)
+	rsaPrivateKey, err := decodePrivateKey(b.b2b2cModel.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
 
 	timestamp := time.Now().Format(time.RFC3339)
-	signatureToken, err := CreateSignatureToken(b.b2b2cModel.ClientKey, timestamp, *rsaPrivateKey)
+	signatureToken, err := createSignatureToken(b.b2b2cModel.ClientKey, timestamp, *rsaPrivateKey)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (b b2b2cConfigContext) Hit() (*party.Response, *error) {
 		return responseToken, nil
 	}
 
-	tokenB2b, err := GetToken(responseToken.ResponseBody)
+	tokenB2b, err := getToken(responseToken.ResponseBody)
 	if err != nil {
 		return nil, err
 	}
@@ -80,23 +80,23 @@ func (b b2b2cConfigContext) Hit() (*party.Response, *error) {
 		return nil, err
 	}
 
-	tokenB2b2c, err := GetToken(responseTokenB2b2c.ResponseBody)
+	tokenB2b2c, err := getToken(responseTokenB2b2c.ResponseBody)
 	if err != nil {
 		return nil, err
 	}
 
-	relativePath, err := GetRelativePath(b.b2b2cModel.UrlApi)
+	relativePath, err := getRelativePath(b.b2b2cModel.UrlApi)
 	if err != nil {
 		return nil, err
 	}
 
-	minify, err := MinifyPayload(b.b2b2cModel.RequestBody)
+	minify, err := minifyPayload(b.b2b2cModel.RequestBody)
 	if err != nil {
 		return nil, err
 	}
 
-	encodeRequestBody := CreateHash256(*minify, b.b2b2cModel.HttpMethod)
-	signaturePayload := CreateSignaturePayload(b.b2b2cModel.ClientSecret, b.b2b2cModel.HttpMethod,
+	encodeRequestBody := createHash256(*minify, b.b2b2cModel.HttpMethod)
+	signaturePayload := createSignaturePayload(b.b2b2cModel.ClientSecret, b.b2b2cModel.HttpMethod,
 		*relativePath, *tokenB2b2c, encodeRequestBody, timestamp)
 	responseEndpoint, err := clientB2b2c.HitEndpoint(*tokenB2b, *tokenB2b2c, timestamp, signaturePayload)
 	if err != nil {

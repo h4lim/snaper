@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-func DecodePrivateKey(key string) (*rsa.PrivateKey, *error) {
+func decodePrivateKey(key string) (*rsa.PrivateKey, *error) {
 
 	privateKey := removeBetweenChar(key)
 	var formattedPrivateKey string
@@ -51,7 +51,7 @@ func DecodePrivateKey(key string) (*rsa.PrivateKey, *error) {
 	return pkcs1PrivateKey, nil
 }
 
-func CreateSignatureToken(clientKey string, timestamp string, privateKey rsa.PrivateKey) (*string, *error) {
+func createSignatureToken(clientKey string, timestamp string, privateKey rsa.PrivateKey) (*string, *error) {
 
 	formula := clientKey + "|" + timestamp
 	digest := sha256.Sum256([]byte(formula))
@@ -66,7 +66,7 @@ func CreateSignatureToken(clientKey string, timestamp string, privateKey rsa.Pri
 	return &stringEncode, nil
 }
 
-func MinifyPayload(jsonString string) (*string, *error) {
+func minifyPayload(jsonString string) (*string, *error) {
 	if jsonString == "" {
 		minifiedJSON, err := songwriter.MarshalToString(jsonString)
 		if err != nil {
@@ -86,7 +86,7 @@ func MinifyPayload(jsonString string) (*string, *error) {
 	return &strJson, nil
 }
 
-func CreateHash256(strJson string, httpMethod string) string {
+func createHash256(strJson string, httpMethod string) string {
 
 	if strings.ToUpper(httpMethod) == "GET" {
 		strJson = ""
@@ -100,7 +100,7 @@ func CreateHash256(strJson string, httpMethod string) string {
 	return strings.ToLower(encodeString)
 }
 
-func CreateSignaturePayload(clientSecret string,
+func createSignaturePayload(clientSecret string,
 	httpMethod string, url string, accessToken string, encodeRequestBody string, timestamp string) string {
 
 	hasher := hmac.New(sha512.New, []byte(clientSecret))
@@ -125,7 +125,7 @@ func removeBetweenChar(inputString string) string {
 	return inputString
 }
 
-func RemoveQueryParam(originUrl string) (*string, *error) {
+func removeQueryParam(originUrl string) (*string, *error) {
 	u, err := url.Parse(originUrl)
 	if err != nil {
 		return nil, &err
@@ -135,7 +135,7 @@ func RemoveQueryParam(originUrl string) (*string, *error) {
 	return &resultUrl, nil
 }
 
-func GetRelativePath(fullUrl string) (*string, *error) {
+func getRelativePath(fullUrl string) (*string, *error) {
 
 	u, err := url.Parse(fullUrl)
 	if err != nil {
@@ -146,7 +146,7 @@ func GetRelativePath(fullUrl string) (*string, *error) {
 	return &resultUrl, nil
 }
 
-func GetToken(jsonString string) (*string, *error) {
+func getToken(jsonString string) (*string, *error) {
 
 	var data map[string]interface{}
 	err := json.Unmarshal([]byte(jsonString), &data)
