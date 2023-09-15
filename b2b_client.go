@@ -1,7 +1,6 @@
 package snaper
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	party "github.com/h4lim/client-party"
 )
@@ -35,11 +34,6 @@ func (c clientPartyB2bContext) HitToken(timestamp string, signature string, requ
 		return nil, err
 	}
 
-	if response.HttpCode != 200 {
-		newError := errors.New(response.ResponseBody)
-		return nil, &newError
-	}
-
 	return response, nil
 }
 
@@ -59,11 +53,6 @@ func (c clientPartyB2bContext) HitEndpoint(authB2b string, timestamp string, sig
 		SetHeader(party.MIMEJSON, mapHeader).SetRequestBodyStr(c.b2bModel.RequestBody).HitClient()
 	if err != nil {
 		return nil, err
-	}
-
-	if response.HttpCode != 200 {
-		newError := errors.New(response.ResponseBody)
-		return nil, &newError
 	}
 
 	return response, nil
